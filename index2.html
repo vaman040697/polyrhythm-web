@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Für Elise - Polyrhythm</title>
+   </head>
+   <body>
+      <canvas id="myCanvas" style="background-color:black;"></canvas>
+      <script src="sound2.js"></script>
+      <script src="track2.js"></script>
+      <script src="ball2.js"></script>
+      <script>
+         const size = 700;
+         const canvas = document.getElementById("myCanvas");
+         canvas.width = size;
+         canvas.height = size / 2;
+
+         const trackCenter = { x: size / 2, y: size / 2 };
+         const trackMinRadius = 50;
+         const trackStep = 15;
+         const ballRadius = 6;
+
+         // Notes frequencies (For the main theme of Für Elise)
+         const soundFrequencies = [
+            659.25, 622.25, 659.25, 622.25, 659.25, 493.88, 587.33, 523.25, 440, 523.25,
+            659.25, 622.25, 659.25, 622.25, 659.25, 523.25, 523.25, 523.25, 523.25, 523.25,
+            659.25, 622.25, 659.25, 622.25, 659.25, 493.88, 587.33, 523.25, 440
+         ];
+
+         // Notes durations for each frequency (eighth, quarter, half notes)
+         const noteDurations = [
+            0.5, 0.5, 0.5, 0.5, 0.5, 1, 0.5, 0.5, 1, 0.5,
+            0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1, 0.5, 0.5,
+            0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1
+         ];
+
+         const tracks = [];
+         const balls = [];
+         const N = soundFrequencies.length;  // Use the number of frequencies for the balls
+
+         // Initialize the tracks and balls
+         for (let i = 0; i < N; i++) {
+            const trackRadius = trackMinRadius + i * trackStep;
+            const noteDuration = noteDurations[i]; // Duration of each note
+            const circumference = 2 * Math.PI * trackRadius;
+            
+            // Calculate the speed based on the note's duration
+            const ballSpeed = circumference / (noteDuration * 5);  // Divide by 5 for slower speed to sync with melody
+
+            const ballSoundFrequency = soundFrequencies[i];
+            const hue = (i * 360) / N;
+            const track = new Track(trackCenter, trackRadius, hue);
+            const ball = new Ball(track, ballRadius, ballSpeed, ballSoundFrequency, hue, noteDuration);
+            tracks.push(track);
+            balls.push(ball);
+         }
+
+         const ctx = canvas.getContext("2d");
+
+         animate();
+
+         function animate() {
+            ctx.clearRect(0, 0, size, size);
+            tracks.forEach((track) => track.draw(ctx));
+            balls.forEach((ball) => ball.move());
+            balls.forEach((ball) => ball.draw(ctx));
+            requestAnimationFrame(animate);
+         }
+      </script>
+   </body>
+</html>
